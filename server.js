@@ -337,6 +337,20 @@ summary{padding:12px 14px;cursor:pointer;font-weight:650}.recipe{display:grid;gr
 .path-step{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1.1fr);gap:7px;align-items:center;padding:9px;border-top:1px solid var(--line)}
 .path-step:first-child{border-top:0}
 @media(max-width:720px){.path-step{grid-template-columns:1fr}.path-step .plus,.path-step .arrow{line-height:1}}
+
+:root{--bg:#111111;--panel:#222222;--line:#555555;--text:#eeeeee;--muted:#b8b8b8;--accent:#88bbff;--good:#eeeeee}
+body{font:20px/1.5 Georgia,"Times New Roman",serif}
+h1{font-size:34px}
+input,select{background:#222222;color:#eeeeee;border-color:#555555}
+button{background:#eeeeee;color:#111111;border-color:#eeeeee}
+.tab.active{background:#111111;color:#eeeeee;border-color:#eeeeee}
+.branch{background:#1a1a1a}
+.node{border-color:#555555;background:#222222}
+.node.output{border-color:#777777;background:#333333}
+.recipe{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}
+.recipe>*{min-width:0;overflow-wrap:anywhere}
+.stat,.tier,.panel,.branch,.pick,.node,.empty,.pill,.account-panel,input,button,select{border-radius:0}
+@media(max-width:720px){.recipe{grid-template-columns:1fr}}
 </style>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
