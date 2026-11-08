@@ -1,6 +1,6 @@
 {
   "name": "readium-alchemy-sync",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,5 +12,6 @@
   "dependencies": {
     "acorn": "^8.15.0",
     "express": "^5.1.0"
-  }
+  },
+  "description": "Community Readium Alchemy explorer with Readium account save import and route planning"
 }

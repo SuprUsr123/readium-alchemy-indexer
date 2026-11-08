@@ -76,27 +76,14 @@ processes. The application itself does not depend on a webhook.
 
 ## Endpoints
 
-- `GET /` — searchable community frontend (`public/index.html`) with a local discovery inventory and next-craft branches
+- `GET /` — searchable community frontend with a local discovery inventory and next-craft branches
 - `GET /health` — host health check
-- `GET /api/version` — tiny `{status, commit, updatedAt, error}` object the frontend polls
-- `GET /api/bundle` — compact payload the frontend uses (elements, recipes and route as arrays, no emoji)
 - `GET /api/status` — upstream commit, last update, parser status and counts
 - `GET /api/recipes` — recipe map, base elements and emoji map
 - `GET /api/route` — dependency-ordered completion route and reachability
 
-`/`, `/api/bundle`, `/api/recipes` and `/api/route` are serialised and gzipped once
-per upstream commit, carry an `ETag`, and answer `If-None-Match` with `304`.
-The frontend polls `/api/version` every five minutes (skipped while the page is
-hidden) and only downloads and redraws when the commit changed.
-
-## Kindle browser notes
-
-The frontend targets the Kindle experimental browser (Chromium 75, JIT-less,
-e-ink). Keep `public/index.html` to ES2019 (no `?.`, `??`, `replaceChildren`),
-system fonts, no emoji, no transitions or animations, no flexbox `gap`, and
-48px touch targets. Lists are paged ("Show more") and use one delegated event
-listener per view so the interpreter and the e-ink panel redraw as little as
-possible.
+The frontend reloads the API snapshot once per minute, so visitors see newly
+published data without refreshing the page manually.
 
 ## Community maintenance
 
@@ -115,3 +102,14 @@ The parser expects top-level literal declarations named `ALC_RECIPES`,
 computed values, moves them into external scripts, or renames them, the parser
 will fail closed rather than publish partial data. Update the extractor and add
 a regression fixture when that happens.
+
+
+## Readium account sign-in and saved progress
+
+The explorer can sign in with an existing Readium username and password. It uses the same Firebase Authentication project and username mapping as Readium (`<username>@readium.chat`), then reads the signed-in user's existing cloud Alchemy save from:
+
+`userAlchemy/<Firebase UID>`
+
+The save's `elements` array seeds the explorer's inventory. It does **not** create Readium accounts, change passwords, write discoveries back to Readium, or proxy credentials through the Node server. The explorer's manual inventory edits are temporary to the current browser session; use **Reload Readium save** to discard those edits and reload the cloud copy.
+
+If sign-in works but the save cannot be read, the Firebase Realtime Database rules may deny reads from the Render deployment. The rules must permit an authenticated user to read only their own `userAlchemy/$uid` record. Do not make the entire `userAlchemy` tree publicly readable or writable. The Firebase Authentication authorized-domains list must also include the deployed Render hostname (and any custom domain).
