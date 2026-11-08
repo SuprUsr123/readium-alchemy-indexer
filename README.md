@@ -112,4 +112,34 @@ The explorer can sign in with an existing Readium username and password. It uses
 
 The save's `elements` array seeds the explorer's inventory. It does **not** create Readium accounts, change passwords, write discoveries back to Readium, or proxy credentials through the Node server. The explorer's manual inventory edits are temporary to the current browser session; use **Reload Readium save** to discard those edits and reload the cloud copy.
 
-If sign-in works but the save cannot be read, the Firebase Realtime Database rules may deny reads from the Render deployment. The rules must permit an authenticated user to read only their own `userAlchemy/$uid` record. Do not make the entire `userAlchemy` tree publicly readable or writable. The Firebase Authentication authorized-domains list must also include the deployed Render hostname (and any custom domain).
+If sign-in works but the save cannot be read, the Firebase Realtime Database rules may deny reads from the Render deployment. The rules must permit an authenticated user to read only their own `userAlchemy/$uid` record. Do not make the entire `userAlchemy` tree publicly readable or writable.
+
+
+## Kindle browser compatibility (Chromium 75)
+
+The frontend is adapted for the Kindle experimental browser profile described
+in `kindle-browser-quirk-system`:
+
+- Frontend JavaScript parses as ES2019; it does not use optional chaining or
+  nullish coalescing.
+- Firebase uses the namespaced 8.10.1 browser SDK build, which predates the
+  SDK's move away from legacy-browser support. This is intentionally used for
+  the Chromium 75 target; it is an older SDK line and does not receive current
+  feature development.
+- Flex layouts use child margins rather than flexbox `gap`. Grid `gap` is
+  retained, as Chromium 75 supports it.
+- CSS animations and transitions are disabled. Headers stay in normal flow;
+  there are no fixed or sticky headers/footers.
+- The page uses system fonts, contains no emoji glyphs, and sets the required
+  Kindle viewport meta tag.
+- Buttons and main controls have touch-friendly hit areas. Checkboxes remain
+  compact inside 48px-high selectable rows.
+- No native alert/confirm/prompt dialogs are used.
+- The explorer does not use `localStorage` for discovery persistence. The
+  Readium save is fetched from Firebase after sign-in; manual edits remain
+  temporary and are not written back to Readium. Kindle cache/session data may
+  be cleared by the device, so sign-in may be needed again.
+
+This is a source-level compatibility pass, not a claim of testing on a physical
+Kindle. Firebase sign-in and database rules still need to be tested on the
+deployed hostname and on the target device.

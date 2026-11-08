@@ -307,40 +307,40 @@ app.get("/api/route", (_req, res) => {
 
 
 const PAGE = String.raw`<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Readium Alchemy Explorer</title>
 <style>
-:root{color-scheme:dark;--bg:#101318;--panel:#1a202a;--line:#303b49;--text:#e9eef5;--muted:#aab6c5;--accent:#8abaff;--good:#8de0b0}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,sans-serif}
+:root{--bg:#101318;--panel:#1a202a;--line:#303b49;--text:#e9eef5;--muted:#aab6c5;--accent:#8abaff;--good:#8de0b0}
+*{box-sizing:border-box;transition:none !important;animation:none !important}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 Arial,sans-serif}
 header,main{max-width:1100px;margin:auto;padding:22px 18px}header{border-bottom:1px solid var(--line)}
-h1{margin:0;font-size:clamp(1.6rem,4vw,2.2rem)}p{color:var(--muted);margin:5px 0}
-.stats{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 13px;min-width:115px;flex:1}.stat b{display:block;font-size:1.35rem}.stat span{color:var(--muted);font-size:.8rem}
-.tools{display:flex;gap:9px;flex-wrap:wrap;margin:15px 0}.tools input{flex:1;min-width:200px}
-input,button{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px}
+h1{margin:0;font-size:1.9rem}p{color:var(--muted);margin:5px 0}
+.stats{display:flex;flex-wrap:wrap;margin-top:15px}.stats>*{margin:0 9px 9px 0}.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 13px;min-width:115px;flex:1}.stat b{display:block;font-size:1.35rem}.stat span{color:var(--muted);font-size:.8rem}
+.tools{display:flex;flex-wrap:wrap;margin:15px 0}.tools>*{margin:0 9px 9px 0}.tools input{flex:1;min-width:200px}
+input,button,select{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px;min-height:48px}
 button{cursor:pointer}button:hover{border-color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}
-.tabs{display:flex;gap:7px;margin:12px 0;flex-wrap:wrap}.tab.active{border-color:var(--accent);background:#233248}
+.tabs{display:flex;margin:12px 0;flex-wrap:wrap}.tabs>*{margin:0 7px 7px 0}.tab.active{border-color:var(--accent);background:#233248}
 #status{font-size:.85rem;margin-top:8px}.tier{border:1px solid var(--line);border-radius:10px;background:var(--panel);margin:10px 0;overflow:hidden}
-summary{padding:12px 14px;cursor:pointer;font-weight:650}.recipe{display:grid;grid-template-columns:26px 1fr 1.3fr;gap:9px;padding:9px 14px;border-top:1px solid var(--line);align-items:center}.muted{color:var(--muted)}.element{font-weight:650}.ingredients{color:var(--muted);overflow-wrap:anywhere}
-.inventory-layout{display:grid;grid-template-columns:minmax(240px,.85fr) minmax(0,1.5fr);gap:14px;align-items:start}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}.panel h2{font-size:1.05rem;margin:0 0 5px}.panel p{font-size:.88rem}.inventory-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:6px;margin-top:12px;max-height:480px;overflow:auto}.pick{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}.pick input{padding:0;accent-color:var(--accent)}.pick span{overflow-wrap:anywhere}.inventory-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.count{color:var(--good);font-size:.85rem}.branch-list{display:grid;gap:11px;margin-top:12px}.branch{border:1px solid var(--line);border-radius:10px;padding:12px;background:#151b23}.branch-flow{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr) 24px minmax(0,1.1fr);gap:7px;align-items:center}.node{border:1px solid #425267;border-radius:8px;padding:9px;text-align:center;min-width:0;overflow-wrap:anywhere;background:#202a37}.node.output{border-color:#527c68;background:#1b3028}.plus,.arrow{text-align:center;color:var(--muted);font-weight:700}.branch-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;color:var(--muted);font-size:.82rem}.branch-foot button{padding:6px 10px;font-size:.85rem}.empty{border:1px dashed var(--line);border-radius:10px;padding:20px;text-align:center;color:var(--muted)}.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:2px 8px;margin:3px;font-size:.8rem;color:var(--muted)}
-@media(max-width:720px){.inventory-layout{grid-template-columns:1fr}.inventory-list{max-height:300px}.branch-flow{grid-template-columns:1fr}.plus,.arrow{line-height:1}.branch-foot{align-items:flex-start;flex-direction:column}.recipe{grid-template-columns:1fr}.ingredients{padding-left:0}.stats{gap:6px}.stat{min-width:90px}}
+summary{padding:12px 14px;cursor:pointer;font-weight:650}.recipe{display:grid;grid-template-columns:26px 1fr 1.3fr;gap:9px;padding:9px 14px;border-top:1px solid var(--line);align-items:center}.muted{color:var(--muted)}.element{font-weight:650}.ingredients{color:var(--muted);overflow-wrap:break-word}
+.inventory-layout{display:grid;grid-template-columns:minmax(240px,.85fr) minmax(0,1.5fr);gap:14px;align-items:start}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}.panel h2{font-size:1.05rem;margin:0 0 5px}.panel p{font-size:.88rem}.inventory-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:6px;margin-top:12px;max-height:480px;overflow:auto}.pick{display:flex;align-items:center;min-height:48px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}.pick input{padding:0;accent-color:var(--accent);min-width:24px;min-height:24px;margin-right:8px}.pick span{overflow-wrap:break-word}.inventory-actions{display:flex;flex-wrap:wrap;margin-top:10px}.inventory-actions>*{margin:0 7px 7px 0}.count{color:var(--good);font-size:.85rem}.branch-list{display:grid;gap:11px;margin-top:12px}.branch{border:1px solid var(--line);border-radius:10px;padding:12px;background:#151b23}.branch-flow{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr) 24px minmax(0,1.1fr);gap:7px;align-items:center}.node{border:1px solid #425267;border-radius:8px;padding:9px;text-align:center;min-width:0;overflow-wrap:break-word;background:#202a37}.node.output{border-color:#527c68;background:#1b3028}.plus,.arrow{text-align:center;color:var(--muted);font-weight:700}.branch-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;color:var(--muted);font-size:.82rem}.branch-foot button{padding:6px 10px;font-size:.85rem}.empty{border:1px dashed var(--line);border-radius:10px;padding:20px;text-align:center;color:var(--muted)}.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:2px 8px;margin:3px;font-size:.8rem;color:var(--muted)}
+@media(max-width:720px){.inventory-layout{grid-template-columns:1fr}.inventory-list{max-height:300px}.branch-flow{grid-template-columns:1fr}.plus,.arrow{line-height:1}.branch-foot{align-items:flex-start;flex-direction:column}.recipe{grid-template-columns:1fr}.ingredients{padding-left:0}.stats>*{margin-right:6px}.stat{min-width:90px}}
 
 .account{max-width:1100px;margin:18px auto 0;padding:0 18px}
 .account-panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
-.account-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.account-row{display:flex;flex-wrap:wrap;align-items:center}.account-row>*{margin:0 8px 8px 0}
 .account-row input{flex:1;min-width:160px}
 .account-note{font-size:.82rem;color:var(--muted);margin-top:8px}
 .account-status{font-size:.9rem;margin-top:8px}
 .account-status.error{color:#ff9b9b}
 .account-status.good{color:var(--good)}
-.target-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.target-tools{display:flex;flex-wrap:wrap;margin:12px 0}.target-tools>*{margin:0 8px 8px 0}
 .target-tools select{flex:1;min-width:220px}
 .path-step{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1.1fr);gap:7px;align-items:center;padding:9px;border-top:1px solid var(--line)}
 .path-step:first-child{border-top:0}
 @media(max-width:720px){.path-step{grid-template-columns:1fr}.path-step .plus,.path-step .arrow{line-height:1}}
 </style>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head><body>
 
 <section class="account">
@@ -371,7 +371,6 @@ let auth=null, db=null, currentUser=null, authReady=false, manualEdits=false;
 const $=id=>document.getElementById(id);
 const STORE_KEY="readium-alchemy-session-owned-v2";
 function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n}
-function emoji(name){return DATA?.all?.emoji?.[name]||"✨"}
 function accountStatus(message,kind=""){const n=$("account-status");n.textContent=message;n.className="account-status"+(kind?" "+kind:"")}
 function usernameEmail(username){return username+"@readium.chat"}
 function validUsername(username){return /^[a-z0-9._-]{3,20}$/.test(username)}
@@ -399,7 +398,7 @@ function initFirebase(){
   auth.onAuthStateChanged(async user=>{
    setAccountUI(user);
    if(user){await readReadiumSave(user)}
-   else{owned=new Set(DATA?.all?.base||[]);cloudElements=[];manualEdits=false;render();accountStatus("Signed out. Sign in to read your Readium cloud save.")}
+   else{owned=new Set((DATA && DATA.all && DATA.all.base) || []);cloudElements=[];manualEdits=false;render();accountStatus("Signed out. Sign in to read your Readium cloud save.")}
   });
  }catch(e){accountStatus("Could not initialize Readium sign-in: "+e.message,"error")}
 }
@@ -430,7 +429,7 @@ async function readReadiumSave(user){
   const save=snap.val()||{};
   const list=Array.isArray(save.elements)?save.elements:[];
   cloudElements=[...new Set(list.filter(x=>typeof x==="string"))];
-  owned=new Set([...(DATA?.all?.base||[]),...cloudElements]);
+  owned=new Set([...((DATA && DATA.all && DATA.all.base) || []),...cloudElements]);
   manualEdits=false;
   render();
   accountStatus(cloudElements.length
@@ -439,12 +438,12 @@ async function readReadiumSave(user){
    "good");
  }catch(e){
   accountStatus("Could not read userAlchemy/"+user.uid+": "+e.message+". Check Readium's Firebase database rules for authenticated reads.","error");
-  owned=new Set(DATA?.all?.base||[]);render()
+  owned=new Set((DATA && DATA.all && DATA.all.base) || []);render()
  }finally{$("account-reload").disabled=false}
 }
 function reloadReadiumSave(){if(currentUser)readReadiumSave(currentUser)}
 function signOut(){if(auth)auth.signOut().catch(e=>accountStatus("Sign-out failed: "+e.message,"error"))}
-function allElements(){return [...new Set([...(DATA?.all?.base||[]),...(DATA?.r?.reachable||[])])].sort((a,b)=>a.localeCompare(b))}
+function allElements(){return [...new Set([...((DATA && DATA.all && DATA.all.base) || []),...((DATA && DATA.r && DATA.r.reachable) || [])])].sort((a,b)=>a.localeCompare(b))}
 function possibleCrafts(){
  const result=[];
  for(const [pair,out] of Object.entries(DATA.all.recipes)){
@@ -496,7 +495,7 @@ function renderInventory(root,q){
   const label=el("label","pick"),check=el("input");check.type="checkbox";check.checked=owned.has(name);
   check.addEventListener("change",()=>{if(check.checked)owned.add(name);else if(!(DATA.all.base||[]).includes(name))owned.delete(name);manualEdits=true;render()});
   if((DATA.all.base||[]).includes(name)){check.checked=true;check.disabled=true}
-  label.append(check,el("span","",emoji(name)+" "+name));list.append(label)
+  label.append(check,el("span","",name));list.append(label)
  }
  left.append(list);
  const actions=el("div","inventory-actions"),reload=el("button","","Reload cloud save"),basics=el("button","","Reset to basics");
@@ -508,7 +507,7 @@ function renderInventory(root,q){
  const branches=el("div","branch-list");
  for(const c of crafts){
   const card=el("article","branch"),flow=el("div","branch-flow");
-  flow.append(el("div","node",emoji(c.a)+" "+c.a),el("div","plus","+"),el("div","node",emoji(c.b)+" "+c.b),el("div","arrow","→"),el("div","node output",emoji(c.out)+" "+c.out));
+  flow.append(el("div","node",c.a),el("div","plus","+"),el("div","node",c.b),el("div","arrow","→"),el("div","node output",c.out));
   const foot=el("div","branch-foot"),note=el("span","","Both ingredients are in your inventory"),add=el("button","","Add to working inventory");
   add.onclick=()=>{owned.add(c.out);manualEdits=true;render()};
   foot.append(note,add);card.append(flow,foot);branches.append(card)
@@ -531,7 +530,7 @@ function renderInventory(root,q){
   result.append(el("p","count",steps.length+" new elements to craft to reach "+target));
   steps.forEach((step,index)=>{
    const line=el("div","path-step");
-   line.append(el("div","node",emoji(step.a)+" "+step.a),el("div","plus","+"),el("div","node",emoji(step.b)+" "+step.b),el("div","arrow","→"),el("div","node output",emoji(step.out)+" "+step.out));
+   line.append(el("div","node",step.a),el("div","plus","+"),el("div","node",step.b),el("div","arrow","→"),el("div","node output",step.out));
    const wrap=el("article","branch");wrap.append(el("div","branch-foot","Step "+(index+1)),line);result.append(wrap)
   })
  };
@@ -547,9 +546,9 @@ async function load(){
   $("stats").replaceChildren();
   const c=s.counts||{};
   for(const [label,value] of [["Elements",c.reachableElements],["Craftable",c.craftableElements],["Recipes",c.recipeEntries],["Tiers",c.tiers]]){
-   const d=el("div","stat");d.append(el("b","",value??"—"),el("span","",label));$("stats").append(d)
+   const d=el("div","stat");d.append(el("b","",(value === undefined || value === null ? "—" : value)),el("span","",label));$("stats").append(d)
   }
-  $("status").textContent="Commit "+(s.commit?.slice(0,12)||"unknown")+" · Updated "+(s.updatedAt||"not yet")+" · "+(s.commitMessage||"")+(s.error?" · Sync warning: "+s.error:"");
+  $("status").textContent="Commit "+((s.commit ? s.commit.slice(0,12) : null)||"unknown")+" · Updated "+(s.updatedAt||"not yet")+" · "+(s.commitMessage||"")+(s.error?" · Sync warning: "+s.error:"");
   render();
  }catch(e){$("status").textContent="Could not load data: "+e.message}
 }
@@ -560,10 +559,10 @@ function render(){
  else if(view==="route"){
   const groups=new Map();
   for(const r of DATA.r.route){if(q&&!(r.element+" "+r.ingredient1+" "+r.ingredient2).toLowerCase().includes(q))continue;if(!groups.has(r.tier))groups.set(r.tier,[]);groups.get(r.tier).push(r)}
-  for(const [tier,rows] of groups){const d=el("details","tier");d.open=Number(tier)<=2;d.append(el("summary","","Tier "+tier+" — "+rows.length+" elements"));for(const r of rows){const line=el("div","recipe");line.append(el("span","",emoji(r.element)),el("span","element",r.element),el("span","ingredients",r.ingredient1+" + "+r.ingredient2));d.append(line)}root.append(d)}
+  for(const [tier,rows] of groups){const d=el("details","tier");d.open=Number(tier)<=2;d.append(el("summary","","Tier "+tier+" — "+rows.length+" elements"));for(const r of rows){const line=el("div","recipe");line.append(el("span","element",r.element),el("span","ingredients",r.ingredient1+" + "+r.ingredient2));d.append(line)}root.append(d)}
  }else{
   const box=el("div","tier");
-  for(const [pair,out] of Object.entries(DATA.all.recipes).sort((a,b)=>a[0].localeCompare(b[0]))){if(q&&!(pair+" "+out).toLowerCase().includes(q))continue;const line=el("div","recipe");line.append(el("span","",emoji(out)),el("span","ingredients",pair.replace("+"," + ")),el("span","element",out));box.append(line)}
+  for(const [pair,out] of Object.entries(DATA.all.recipes).sort((a,b)=>a[0].localeCompare(b[0]))){if(q&&!(pair+" "+out).toLowerCase().includes(q))continue;const line=el("div","recipe");line.append(el("span","ingredients",pair.replace("+"," + ")),el("span","element",out));box.append(line)}
   root.append(box)
  }
 }
