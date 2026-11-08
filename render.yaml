@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: readium-alchemy-community
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: GITHUB_REPO
+        value: readchickn/readium
+      - key: GITHUB_BRANCH
+        value: main
+      - key: POLL_SECONDS
+        value: "300"
