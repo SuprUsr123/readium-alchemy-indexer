@@ -381,12 +381,15 @@ button{background:#eeeeee;color:#111111;border-color:#eeeeee}
 <script>
 
 let DATA=null, view="inventory", owned=new Set(), cloudElements=[];
+let ELEMENTS=[];
+let LIMITS={inventory:40,crafts:20,route:40,recipes:40};
 let auth=null, db=null, currentUser=null, authReady=false, manualEdits=false;
 const $=id=>document.getElementById(id);
 const STORE_KEY="readium-alchemy-session-owned-v2";
 function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n}
 // Use removeChild loops for older Chromium builds.
 function clearChildren(node){while(node.firstChild){node.removeChild(node.firstChild)}}
+function showMore(root,key,total,label){if(LIMITS[key]>=total)return;const wrap=el("div","inventory-actions");const button=el("button","","Show more "+label+" ("+Math.min(LIMITS[key],total)+" of "+total+")");button.onclick=()=>{LIMITS[key]+=key==="crafts"?20:40;render()};wrap.append(button);root.append(wrap)}
 function accountStatus(message,kind=""){const n=$("account-status");n.textContent=message;n.className="account-status"+(kind?" "+kind:"")}
 function usernameEmail(username){return username+"@readium.chat"}
 function validUsername(username){return /^[a-z0-9._-]{3,20}$/.test(username)}
@@ -459,7 +462,7 @@ async function readReadiumSave(user){
 }
 function reloadReadiumSave(){if(currentUser)readReadiumSave(currentUser)}
 function signOut(){if(auth)auth.signOut().catch(e=>accountStatus("Sign-out failed: "+e.message,"error"))}
-function allElements(){return [...new Set([...((DATA && DATA.all && DATA.all.base) || []),...((DATA && DATA.r && DATA.r.reachable) || [])])].sort((a,b)=>a.localeCompare(b))}
+function allElements(){return ELEMENTS}
 function possibleCrafts(){
  const result=[];
  for(const [pair,out] of Object.entries(DATA.all.recipes)){
@@ -506,14 +509,14 @@ function renderInventory(root,q){
  left.append(el("h2","","Your Readium discoveries"),el("p","","Loaded from your Readium account. You can adjust this working selection to explore alternatives; changes are session-only."));
  const count=el("div","count",owned.size+" selected");left.append(count);
  const list=el("div","inventory-list");
- for(const name of allElements()){
-  if(q&&!name.toLowerCase().includes(q))continue;
+ const inventoryMatches=allElements().filter(name=>!q||name.toLowerCase().includes(q));
+ for(const name of inventoryMatches.slice(0,LIMITS.inventory)){
   const label=el("label","pick"),check=el("input");check.type="checkbox";check.checked=owned.has(name);
   check.addEventListener("change",()=>{if(check.checked)owned.add(name);else if(!(DATA.all.base||[]).includes(name))owned.delete(name);manualEdits=true;render()});
   if((DATA.all.base||[]).includes(name)){check.checked=true;check.disabled=true}
   label.append(check,el("span","",name));list.append(label)
  }
- left.append(list);
+ left.append(list);showMore(left,"inventory",inventoryMatches.length,"discoveries");
  const actions=el("div","inventory-actions"),reload=el("button","","Reload cloud save"),basics=el("button","","Reset to basics");
  reload.onclick=reloadReadiumSave;basics.onclick=()=>{owned=new Set(DATA.all.base);manualEdits=true;render()};
  actions.append(reload,basics);left.append(actions);
@@ -521,7 +524,7 @@ function renderInventory(root,q){
  const crafts=possibleCrafts();
  right.append(el("p","",crafts.length?crafts.length+" new recipes are immediately craftable from this selection.":"No new recipes are available yet. Add more discoveries on the left."));
  const branches=el("div","branch-list");
- for(const c of crafts){
+ for(const c of crafts.slice(0,LIMITS.crafts)){
   const card=el("article","branch"),flow=el("div","branch-flow");
   flow.append(el("div","node",c.a),el("div","plus","+"),el("div","node",c.b),el("div","arrow","→"),el("div","node output",c.out));
   const foot=el("div","branch-foot"),note=el("span","","Both ingredients are in your inventory"),add=el("button","","Add to working inventory");
@@ -529,7 +532,7 @@ function renderInventory(root,q){
   foot.append(note,add);card.append(flow,foot);branches.append(card)
  }
  if(!crafts.length)branches.append(el("div","empty","Your current inventory has no new direct recipes. Try adding another saved discovery or plan a route below."));
- right.append(branches);
+ right.append(branches);showMore(right,"crafts",crafts.length,"recipes");
  const planPanel=el("section","panel");planPanel.style.marginTop="14px";
  planPanel.append(el("h2","","Plan a path to an element"),el("p","","Choose an element you haven't discovered. The explorer will trace the recipe dependencies back to what you already own."));
  const tools=el("div","target-tools"),select=el("select"),go=el("button","","Show path");
@@ -537,7 +540,7 @@ function renderInventory(root,q){
  const closure=buildOwnedClosure();
  const targets=[...closure.known].filter(n=>!owned.has(n)).sort((a,b)=>a.localeCompare(b));
  select.append(new Option(targets.length?"Choose a target…":"No undiscovered reachable targets",""));
- for(const target of targets)select.append(new Option(target+" · "+(planTo(target)||[]).length+" new crafts",target));
+ for(const target of targets)select.append(new Option(target,target));
  go.disabled=!targets.length;
  const result=el("div","branch-list");go.onclick=()=>{
   clearChildren(result);const target=select.value;if(!target)return;
@@ -558,6 +561,7 @@ async function load(){
  try{
   const [s,r,all]=await Promise.all([fetch("/api/status").then(x=>x.json()),fetch("/api/route").then(x=>x.json()),fetch("/api/recipes").then(x=>x.json())]);
   DATA={s,r,all};
+  ELEMENTS=[...new Set([...(all.base||[]),...(r.reachable||[])])].sort((a,b)=>a.localeCompare(b));
   if(!authReady){owned=new Set(all.base||[])}
   clearChildren($("stats"));
   const c=s.counts||{};
@@ -574,12 +578,15 @@ function render(){
  if(view==="inventory"){renderInventory(root,q)}
  else if(view==="route"){
   const groups=new Map();
-  for(const r of DATA.r.route){if(q&&!(r.element+" "+r.ingredient1+" "+r.ingredient2).toLowerCase().includes(q))continue;if(!groups.has(r.tier))groups.set(r.tier,[]);groups.get(r.tier).push(r)}
+  const routeMatches=DATA.r.route.filter(r=>!q||(r.element+" "+r.ingredient1+" "+r.ingredient2).toLowerCase().includes(q));
+  for(const r of routeMatches.slice(0,LIMITS.route)){if(!groups.has(r.tier))groups.set(r.tier,[]);groups.get(r.tier).push(r)}
   for(const [tier,rows] of groups){const d=el("details","tier");d.open=Number(tier)<=2;d.append(el("summary","","Tier "+tier+" — "+rows.length+" elements"));for(const r of rows){const line=el("div","recipe");line.append(el("span","element",r.element),el("span","ingredients",r.ingredient1+" + "+r.ingredient2));d.append(line)}root.append(d)}
+  showMore(root,"route",routeMatches.length,"route entries");
  }else{
   const box=el("div","tier");
-  for(const [pair,out] of Object.entries(DATA.all.recipes).sort((a,b)=>a[0].localeCompare(b[0]))){if(q&&!(pair+" "+out).toLowerCase().includes(q))continue;const line=el("div","recipe");line.append(el("span","ingredients",pair.replace("+"," + ")),el("span","element",out));box.append(line)}
-  root.append(box)
+  const recipeMatches=Object.entries(DATA.all.recipes).sort((a,b)=>a[0].localeCompare(b[0])).filter(([pair,out])=>!q||(pair+" "+out).toLowerCase().includes(q));
+  for(const [pair,out] of recipeMatches.slice(0,LIMITS.recipes)){const line=el("div","recipe");line.append(el("span","ingredients",pair.replace("+"," + ")),el("span","element",out));box.append(line)}
+  root.append(box);showMore(root,"recipes",recipeMatches.length,"recipes")
  }
 }
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{view=b.dataset.view;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));render()});
@@ -590,7 +597,8 @@ $("readium-username").addEventListener("keydown",e=>{if(e.key==="Enter")$("readi
 $("account-reload").onclick=reloadReadiumSave;
 $("account-logout").onclick=signOut;
 load().then(()=>{authReady=true;initFirebase()});
-setInterval(load,60000);
+// Do not rebuild hundreds of DOM nodes on a timer. Refresh only the status text.
+setInterval(function(){fetch("/api/status").then(function(response){return response.json()}).then(function(s){$("status").textContent="Commit "+((s.commit?s.commit.slice(0,12):null)||"unknown")+" · Updated "+(s.updatedAt||"not yet")+" · "+(s.commitMessage||"")+(s.error?" · Sync warning: "+s.error:"")}).catch(function(){})},300000);
 
 </script></body></html>`;
 
