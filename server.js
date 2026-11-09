@@ -385,6 +385,8 @@ let auth=null, db=null, currentUser=null, authReady=false, manualEdits=false;
 const $=id=>document.getElementById(id);
 const STORE_KEY="readium-alchemy-session-owned-v2";
 function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n}
+// Use removeChild loops for older Chromium builds.
+function clearChildren(node){while(node.firstChild){node.removeChild(node.firstChild)}}
 function accountStatus(message,kind=""){const n=$("account-status");n.textContent=message;n.className="account-status"+(kind?" "+kind:"")}
 function usernameEmail(username){return username+"@readium.chat"}
 function validUsername(username){return /^[a-z0-9._-]{3,20}$/.test(username)}
@@ -538,7 +540,7 @@ function renderInventory(root,q){
  for(const target of targets)select.append(new Option(target+" · "+(planTo(target)||[]).length+" new crafts",target));
  go.disabled=!targets.length;
  const result=el("div","branch-list");go.onclick=()=>{
-  result.replaceChildren();const target=select.value;if(!target)return;
+  clearChildren(result);const target=select.value;if(!target)return;
   const steps=planTo(target);
   if(!steps){result.append(el("div","empty","No valid path was found from this inventory."));return}
   result.append(el("p","count",steps.length+" new elements to craft to reach "+target));
@@ -557,7 +559,7 @@ async function load(){
   const [s,r,all]=await Promise.all([fetch("/api/status").then(x=>x.json()),fetch("/api/route").then(x=>x.json()),fetch("/api/recipes").then(x=>x.json())]);
   DATA={s,r,all};
   if(!authReady){owned=new Set(all.base||[])}
-  $("stats").replaceChildren();
+  clearChildren($("stats"));
   const c=s.counts||{};
   for(const [label,value] of [["Elements",c.reachableElements],["Craftable",c.craftableElements],["Recipes",c.recipeEntries],["Tiers",c.tiers]]){
    const d=el("div","stat");d.append(el("b","",(value === undefined || value === null ? "—" : value)),el("span","",label));$("stats").append(d)
@@ -568,7 +570,7 @@ async function load(){
 }
 function render(){
  if(!DATA)return;
- const q=$("search").value.trim().toLowerCase(),root=$("content");root.replaceChildren();
+ const q=$("search").value.trim().toLowerCase(),root=$("content");clearChildren(root);
  if(view==="inventory"){renderInventory(root,q)}
  else if(view==="route"){
   const groups=new Map();
