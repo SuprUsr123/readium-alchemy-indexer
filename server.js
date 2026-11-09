@@ -474,21 +474,32 @@ function possibleCrafts(){
 }
 function buildOwnedClosure(){
  const known=new Set(owned),chosen=new Map(),route=[];
- let changed=true,tier=0;
- while(changed){
-  changed=false;tier++;
-  const additions=[];
-  for(const [pair,out] of Object.entries(DATA.all.recipes)){
-   if(known.has(out))continue;
-   const i=pair.indexOf("+");if(i<0)continue;
-   const a=pair.slice(0,i),b=pair.slice(i+1);
-   if(known.has(a)&&known.has(b))additions.push({a,b,out});
+ const byIngredient=new Map(),pending=new Map();
+ for(const [pair,out] of Object.entries(DATA.all.recipes)){
+  if(known.has(out))continue;
+  const i=pair.indexOf("+");if(i<0)continue;
+  const a=pair.slice(0,i),b=pair.slice(i+1),ingredients=a===b?[a]:[a,b];
+  const item={a,b,out};pending.set(item,ingredients.length);
+  for(const ingredient of ingredients){
+   if(!byIngredient.has(ingredient))byIngredient.set(ingredient,[]);
+   byIngredient.get(ingredient).push(item);
   }
-  additions.sort((a,b)=>a.out.localeCompare(b.out));
-  for(const item of additions){
+ }
+ let frontier=Array.from(known),tier=0;
+ while(frontier.length){
+  const ready=new Set();
+  for(const ingredient of frontier){
+   const list=byIngredient.get(ingredient)||[];
+   for(const item of list){const n=pending.get(item)-1;pending.set(item,n);if(n===0)ready.add(item)}
+  }
+  const next=[];
+  const ordered=Array.from(ready).sort((x,y)=>x.out.localeCompare(y.out));
+  for(const item of ordered){
    if(known.has(item.out))continue;
-   known.add(item.out);chosen.set(item.out,item);route.push({...item,tier});changed=true;
+   known.add(item.out);chosen.set(item.out,item);
+   route.push({a:item.a,b:item.b,out:item.out,tier:tier+1});next.push(item.out);
   }
+  frontier=next;tier++;
  }
  return {known,chosen,route}
 }
